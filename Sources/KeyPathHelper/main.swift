@@ -74,7 +74,7 @@ func validateConnection(_ connection: NSXPCConnection, requirement requirementSt
             let teamID = info[kSecCodeInfoTeamIdentifier as String] as? String ?? "unknown"
             NSLog("[KeyPathHelper] Code signature validation failed for PID \(pid): \(status)")
             NSLog("[KeyPathHelper]   → Connecting process: identifier=\(identifier), team=\(teamID)")
-            NSLog("[KeyPathHelper]   → Expected: identifier=\"com.keypath.KeyPath\" or \"com.keypath.KeyPath.CLI\", team=\"X2RKZ5TG99\"")
+            NSLog("[KeyPathHelper]   → Expected: identifier=\"com.keypath.KeyPath\" or \"com.keypath.KeyPath.CLI\", team=\"2ZB5WTYXC6\"")
             NSLog("[KeyPathHelper]   → This likely means app was updated but not restarted")
             logger.error(
                 """
@@ -106,10 +106,10 @@ class HelperDelegate: NSObject, NSXPCListenerDelegate {
         // - RELEASE: require the exact app or bundled CLI identifier for strict production security
         #if DEBUG
             let requirementString =
-                "anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] and certificate leaf[field.1.2.840.113635.100.6.1.13] and certificate leaf[subject.OU] = X2RKZ5TG99"
+                "anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] and certificate leaf[field.1.2.840.113635.100.6.1.13] and certificate leaf[subject.OU] = \"2ZB5WTYXC6\""
         #else
             // swiftlint:disable:next line_length
-            let requirementString = "(identifier \"com.keypath.KeyPath\" or identifier \"com.keypath.KeyPath.CLI\") and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] and certificate leaf[field.1.2.840.113635.100.6.1.13] and certificate leaf[subject.OU] = X2RKZ5TG99"
+            let requirementString = "(identifier \"com.keypath.KeyPath\" or identifier \"com.keypath.KeyPath.CLI\") and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] and certificate leaf[field.1.2.840.113635.100.6.1.13] and certificate leaf[subject.OU] = \"2ZB5WTYXC6\""
         #endif
 
         // Validate the caller's code signature using audit token

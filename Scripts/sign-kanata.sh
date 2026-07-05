@@ -31,7 +31,7 @@ codesign -d -vvv "$KANATA_PATH" 2>&1 | grep -E "Signature|TeamIdentifier|Identif
 
 # Sign with Developer ID
 echo -e "\n${BLUE}Signing kanata with Developer ID...${NC}"
-SIGNING_IDENTITY="Developer ID Application: Micah Alpern (X2RKZ5TG99)"
+SIGNING_IDENTITY="Developer ID Application: Pratik Rungta (2ZB5WTYXC6)"
 
 # Remove any existing signature
 echo "Removing existing signature..."
