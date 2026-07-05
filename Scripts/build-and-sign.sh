@@ -175,6 +175,25 @@ EOF
     echo "   💿 DMG: ${SPARKLE_DIR}/${DMG_NAME}"
 }
 
+KEYPATH_SIGN_ONLY="${KEYPATH_SIGN_ONLY:-0}"
+if [ "$KEYPATH_SIGN_ONLY" = "1" ]; then
+    # Sign-only mode: a prior secrets-free build job assembled dist/KeyPath.app and
+    # handed it here as an opaque artifact. Skip every build/assembly step; only
+    # (re)derive the path variables the signing block needs, then sign in place.
+    APP_NAME="KeyPath"
+    DIST_DIR="dist"
+    APP_BUNDLE="${DIST_DIR}/${APP_NAME}.app"
+    CONTENTS="${APP_BUNDLE}/Contents"
+    MACOS="${CONTENTS}/MacOS"
+    FRAMEWORKS="${CONTENTS}/Frameworks"
+    HELPER_TOOLS="${CONTENTS}/Library/HelperTools"
+    INSIGHTS_BUNDLE="${CONTENTS}/PlugIns/Insights.bundle"
+    if [ ! -d "$APP_BUNDLE" ]; then
+        echo "ERROR: KEYPATH_SIGN_ONLY=1 but $APP_BUNDLE does not exist" >&2
+        exit 1
+    fi
+    echo "Sign-only mode: signing prebuilt $APP_BUNDLE"
+else
 echo "🦀 Building Rust artifacts in parallel (kanata, simulator, host bridge)..."
 ./Scripts/build-kanata.sh &
 KANATA_PID=$!
@@ -422,6 +441,8 @@ cat > "$RESOURCES/BuildInfo.plist" <<EOF
 </plist>
 EOF
 
+fi  # end build+assemble (skipped when KEYPATH_SIGN_ONLY=1)
+
 SIGNING_IDENTITY="${CODESIGN_IDENTITY:-Developer ID Application: Micah Alpern (X2RKZ5TG99)}"
 SKIP_CODESIGN="${SKIP_CODESIGN:-0}"
 
@@ -430,7 +451,7 @@ if [ "$SKIP_CODESIGN" = "1" ]; then
     SKIP_NOTARIZE=1
 else
     echo "✍️  Signing executables..."
-    if [ "${KP_SIGN_DRY_RUN:-0}" != "1" ]; then
+    if [ "${KP_SIGN_DRY_RUN:-0}" != "1" ] && [ "$KEYPATH_SIGN_ONLY" != "1" ]; then
         if ! security find-identity -v -p codesigning | grep -Fq "$SIGNING_IDENTITY"; then
             echo "❌ ERROR: codesign identity not found: $SIGNING_IDENTITY" >&2
             echo "Available identities:" >&2
@@ -518,6 +539,9 @@ else
     create_sparkle_archive
 fi
 
+if [ "$KEYPATH_SIGN_ONLY" = "1" ] || [ "${SKIP_DEPLOY:-0}" = "1" ]; then
+    echo "Skipping deploy to /Applications (sign-only or SKIP_DEPLOY=1)"
+else
 # Stop running KeyPath and kanata BEFORE replacing the app bundle.
 # Replacing binaries while the process is live causes macOS to detect
 # code page mismatches and kill the process with:
@@ -584,6 +608,8 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────────────────
+fi  # end deploy (skipped when KEYPATH_SIGN_ONLY=1 or SKIP_DEPLOY=1)
+
 # Publish help content to website
 # ─────────────────────────────────────────────────────────────────────
 
