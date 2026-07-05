@@ -40,7 +40,7 @@ final class HelperTrustContractTests: XCTestCase {
 
     func testHelperReleaseTrustRequirementParses() {
         let releaseRequirement =
-            #"(identifier "com.keypath.KeyPath" or identifier "com.keypath.KeyPath.CLI") and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] and certificate leaf[field.1.2.840.113635.100.6.1.13] and certificate leaf[subject.OU] = X2RKZ5TG99"#
+            #"(identifier "com.keypath.KeyPath" or identifier "com.keypath.KeyPath.CLI") and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] and certificate leaf[field.1.2.840.113635.100.6.1.13] and certificate leaf[subject.OU] = "2ZB5WTYXC6""#
 
         var requirement: SecRequirement?
         let status = SecRequirementCreateWithString(releaseRequirement as CFString, [], &requirement)
